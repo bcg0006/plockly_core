@@ -22,7 +22,7 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "3000:3000"
+      - "3001:5173"
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -30,7 +30,7 @@ services:
       - REACT_APP_API_URL=http://localhost:8000/api
     depends_on:
       - backend
-    command: npm start
+    command: npm run dev -- --host 0.0.0.0 --port 5173
 
   # PostgreSQL Database
   db:
@@ -42,13 +42,13 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
   # Redis (for caching and sessions)
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "6380:6379"
 
 volumes:
   postgres_data:

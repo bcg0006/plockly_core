@@ -17,10 +17,10 @@ check_port() {
 }
 
 echo "🔍 Checking port availability..."
-check_port 3000
+check_port 3001
 check_port 8000
-check_port 5432
-check_port 6379
+check_port 5433
+check_port 6380
 
 echo "✅ Ports are available"
 
@@ -38,7 +38,7 @@ docker-compose ps
 echo ""
 echo "🎉 Development environment is ready!"
 echo ""
-echo "📱 Frontend: http://localhost:3000"
+echo "📱 Frontend: http://localhost:3001"
 echo "🔧 Backend API: http://localhost:8000/api/"
 echo "⚙️  Django Admin: http://localhost:8000/admin/"
 echo ""
