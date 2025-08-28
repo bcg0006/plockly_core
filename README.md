@@ -17,6 +17,8 @@ plockly_v2/
 │   ├── public/       # Public assets
 │   ├── Dockerfile    # Frontend container
 │   └── package.json  # Node dependencies
+├── deploy/            # Production deployment files
+├── .github/           # GitHub Actions CI/CD
 ├── docker-compose.yml # Multi-container setup
 └── README.md         # This file
 ```
@@ -131,6 +133,134 @@ docker-compose down -v  # Remove volumes
 docker system prune     # Clean unused images
 ```
 
+## CI/CD Pipeline 🚀
+
+### GitHub Actions Workflow
+
+Our project includes a comprehensive CI/CD pipeline that runs automatically on every push and pull request.
+
+#### **Pipeline Stages:**
+
+1. **Backend Testing** 🐍
+   - Python 3.11 setup
+   - Dependency installation with caching
+   - Code linting (Black, isort, flake8)
+   - Django tests with coverage
+   - PostgreSQL & Redis service containers
+
+2. **Frontend Testing** ⚛️
+   - Node.js 20 setup
+   - NPM dependency caching
+   - ESLint code quality checks
+   - Jest unit tests with coverage
+   - Production build verification
+
+3. **Docker Build Testing** 🐳
+   - Multi-stage Docker builds
+   - Container health checks
+   - Image size optimization
+   - Build artifact validation
+
+4. **Security Scanning** 🔒
+   - Trivy vulnerability scanning
+   - Dependency security analysis
+   - GitHub Security tab integration
+   - CVE detection and reporting
+
+5. **Deployment** 🚀
+   - **Staging**: Automatic deployment on main branch
+   - **Production**: Manual deployment with approval
+   - Environment-specific configurations
+   - Health check monitoring
+
+#### **Pipeline Triggers:**
+
+- **Push to main**: Full pipeline + staging deployment
+- **Push to develop**: Full pipeline (no deployment)
+- **Pull Request**: Full pipeline (no deployment)
+- **Manual**: Production deployment trigger
+
+#### **Quality Gates:**
+
+- ✅ **Code Coverage**: Minimum 70% required
+- ✅ **Linting**: Black, isort, flake8 must pass
+- ✅ **Tests**: All Django and React tests must pass
+- ✅ **Security**: No critical vulnerabilities
+- ✅ **Build**: Docker images must build successfully
+
+### Local Development Quality Tools
+
+#### **Backend (Python):**
+
+```bash
+# Code formatting
+cd backend
+black .                    # Auto-format code
+isort .                    # Sort imports
+flake8 .                   # Lint code
+
+# Testing
+pytest                     # Run all tests
+pytest --cov=.            # Run with coverage
+pytest -m "not slow"      # Skip slow tests
+```
+
+#### **Frontend (React):**
+
+```bash
+# Code quality
+cd frontend
+npm run lint               # ESLint checks
+npm run lint:fix           # Auto-fix issues
+
+# Testing
+npm test                   # Run tests
+npm run test:coverage      # Coverage report
+npm run build              # Production build
+```
+
+### Deployment Environments
+
+#### **Staging Environment:**
+- **Auto-deploy**: On every push to main branch
+- **Purpose**: Pre-production testing
+- **URL**: `staging.plockly.com` (example)
+- **Database**: Staging PostgreSQL instance
+- **Monitoring**: Basic health checks
+
+#### **Production Environment:**
+- **Manual deploy**: Requires approval
+- **Purpose**: Live application
+- **URL**: `plockly.com` (example)
+- **Database**: Production PostgreSQL cluster
+- **Monitoring**: Full observability stack
+
+### Environment Variables
+
+Create `.env` files for each environment:
+
+```bash
+# .env.staging
+DEBUG=False
+SECRET_KEY=your-staging-secret-key
+DATABASE_URL=postgresql://user:pass@staging-db:5432/plockly
+ALLOWED_HOSTS=staging.plockly.com
+
+# .env.production
+DEBUG=False
+SECRET_KEY=your-production-secret-key
+DATABASE_URL=postgresql://user:pass@prod-db:5432/plockly
+ALLOWED_HOSTS=plockly.com
+```
+
+### Monitoring & Observability
+
+- **Health Checks**: `/health` endpoints for all services
+- **Logging**: Structured logging with correlation IDs
+- **Metrics**: Prometheus metrics collection
+- **Tracing**: Distributed tracing with OpenTelemetry
+- **Alerts**: Slack/email notifications on failures
+
 ## Current Status ✅
 
 ### Completed Features
@@ -141,6 +271,8 @@ docker system prune     # Clean unused images
 - **API Endpoints**: Items CRUD operations with authentication
 - **Admin Interface**: Django admin accessible and functional
 - **Docker**: Full containerized environment working
+- **CI/CD**: Complete GitHub Actions pipeline
+- **Security**: Enhanced JWT with token rotation
 
 ### Database Setup
 - **Migrations**: Applied successfully
@@ -252,11 +384,46 @@ cd plockly_core
 
 ## Contributing
 
-1. Create a feature branch: `git checkout -b feature/new-feature`
-2. Make your changes and test thoroughly
-3. Commit with descriptive messages: `git commit -m "Add new feature"`
-4. Push to your branch: `git push origin feature/new-feature`
-5. Create a pull request with detailed description
+### Development Workflow
+
+1. **Create Feature Branch**
+   ```bash
+   git checkout -b feature/new-feature
+   ```
+
+2. **Make Changes & Test**
+   ```bash
+   # Backend
+   cd backend
+   black . && isort . && flake8 .
+   pytest
+   
+   # Frontend
+   cd frontend
+   npm run lint
+   npm test
+   npm run build
+   ```
+
+3. **Commit with Standards**
+   ```bash
+   git add .
+   git commit -m "feat: add new authentication component"
+   ```
+
+4. **Push & Create PR**
+   ```bash
+   git push origin feature/new-feature
+   # Create Pull Request on GitHub
+   ```
+
+### Code Quality Standards
+
+- **Python**: Black formatting, isort imports, flake8 linting
+- **TypeScript**: ESLint rules, Prettier formatting
+- **Tests**: Minimum 70% coverage required
+- **Commits**: Conventional commit format
+- **PRs**: Must pass all CI checks
 
 ## Support
 
@@ -264,6 +431,30 @@ cd plockly_core
 - **Frontend Issues**: Check React logs with `docker-compose logs frontend`
 - **Database Issues**: Check PostgreSQL logs with `docker-compose logs db`
 - **General Issues**: Check all logs with `docker-compose logs`
+- **CI/CD Issues**: Check GitHub Actions tab in repository
+
+## Deployment
+
+### Production Deployment
+
+1. **Prepare Release**
+   ```bash
+   git checkout main
+   git pull origin main
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+
+2. **Trigger Deployment**
+   - Go to GitHub Actions
+   - Select "Deploy to Production"
+   - Click "Run workflow"
+   - Approve deployment
+
+3. **Monitor Deployment**
+   - Watch GitHub Actions logs
+   - Check health endpoints
+   - Verify all services running
 
 ---
 
