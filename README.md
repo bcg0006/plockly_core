@@ -397,7 +397,7 @@ cd plockly_core
    cd backend
    black . && isort . && flake8 .
    pytest
-   
+
    # Frontend
    cd frontend
    npm run lint
