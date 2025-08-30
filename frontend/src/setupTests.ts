@@ -51,7 +51,7 @@ const originalConsoleWarn = console.warn;
 
 beforeAll(() => {
   // Suppress console.error for React warnings in tests
-  console.error = (...args: any[]) => {
+  console.error = (...args: unknown[]) => {
     if (
       typeof args[0] === 'string' &&
       args[0].includes('Warning: ReactDOM.render is no longer supported')
@@ -62,7 +62,7 @@ beforeAll(() => {
   };
 
   // Suppress console.warn for React warnings in tests
-  console.warn = (...args: any[]) => {
+  console.warn = (...args: unknown[]) => {
     if (
       typeof args[0] === 'string' &&
       (args[0].includes('Warning:') || args[0].includes('DeprecationWarning:'))
@@ -148,20 +148,18 @@ global.testUtils = {
 
 // Extend Jest matchers
 declare global {
-  namespace jest {
-    interface Matchers<R> {
-      toBeInTheDocument(): R;
-      toHaveClass(className: string): R;
-      toHaveAttribute(attr: string, value?: string): R;
-      toHaveTextContent(text: string | RegExp): R;
-      toBeVisible(): R;
-      toBeDisabled(): R;
-      toBeEnabled(): R;
-      toBeRequired(): R;
-      toHaveValue(value: string | number | string[]): R;
-      toBeChecked(): R;
-      toHaveFocus(): R;
-    }
+  interface JestMatchers<R> {
+    toBeInTheDocument(): R;
+    toHaveClass(className: string): R;
+    toHaveAttribute(attr: string, value?: string): R;
+    toHaveTextContent(text: string | RegExp): R;
+    toBeVisible(): R;
+    toBeDisabled(): R;
+    toBeEnabled(): R;
+    toBeRequired(): R;
+    toHaveValue(value: string | number | string[]): R;
+    toBeChecked(): R;
+    toHaveFocus(): R;
   }
 
   var testUtils: {

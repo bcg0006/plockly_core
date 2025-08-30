@@ -1,59 +1,5 @@
-import React from 'react';
-import type { ReactElement } from 'react';
-import { render } from '@testing-library/react';
-import type { RenderOptions } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import { BrowserRouter } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { configureStore } from '@reduxjs/toolkit';
-
-// Import your store configuration when available
-// import { store } from '../store';
-
-// Create a mock store for testing
-const createTestStore = () => {
-  return configureStore({
-    reducer: {
-      // Add your reducers here when available
-      // auth: authReducer,
-      // items: itemsReducer,
-    },
-    preloadedState: {
-      // Add initial state for testing
-    },
-  });
-};
-
-// Create a test theme
-const testTheme = createTheme({
-  // Customize theme for testing if needed
-});
-
-// Custom render function that includes providers
-const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
-  const store = createTestStore();
-
-  return (
-    <Provider store={store}>
-      <BrowserRouter>
-        <ThemeProvider theme={testTheme}>
-          {children}
-        </ThemeProvider>
-      </BrowserRouter>
-    </Provider>
-  );
-};
-
-const customRender = (
-  ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>
-) => render(ui, { wrapper: AllTheProviders, ...options });
-
-// Re-export everything
-export * from '@testing-library/react';
-
-// Override render method
-export { customRender as render };
+// Import the custom render function from test-providers
+export { render, createTestStore } from './test-providers';
 
 // Export test utilities
 export const testUtils = {
@@ -81,7 +27,7 @@ export const testUtils = {
   },
 
   // Mock API responses
-  mockApiResponse: (url: string, response: any) => {
+  mockApiResponse: (url: string, response: unknown) => {
     global.fetch = jest.fn().mockImplementation((requestUrl) => {
       if (requestUrl === url) {
         return Promise.resolve({
@@ -160,5 +106,25 @@ export const testUtils = {
   }),
 };
 
-// Export the store creation function
-export { createTestStore };
+// Export testing library utilities individually to avoid React refresh issues
+export {
+  screen,
+  waitFor,
+  fireEvent,
+  within,
+  getByRole,
+  getByText,
+  getByLabelText,
+  getByPlaceholderText,
+  getByTestId,
+  queryByRole,
+  queryByText,
+  queryByLabelText,
+  queryByPlaceholderText,
+  queryByTestId,
+  findByRole,
+  findByText,
+  findByLabelText,
+  findByPlaceholderText,
+  findByTestId,
+} from '@testing-library/react';

@@ -1,8 +1,8 @@
-import pytest
-from django.test import TestCase
 from django.contrib.auth.models import User
-from rest_framework.test import APIClient
+from django.test import TestCase
+
 from rest_framework import status
+from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -22,12 +22,12 @@ class UserAuthenticationTest(TestCase):
         """Test user registration endpoint."""
         response = self.client.post("/api/auth/register/", self.user_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        
+
         # Verify response contains expected data
         self.assertIn("access_token", response.data)
         self.assertIn("refresh_token", response.data)
         self.assertIn("user", response.data)
-        
+
         # Verify user was created in database
         user = User.objects.get(username="testuser")
         self.assertEqual(user.email, "test@example.com")
@@ -48,7 +48,7 @@ class UserAuthenticationTest(TestCase):
             email="first@example.com",
             password="testpass123",
         )
-        
+
         # Try to create second user with same username
         response = self.client.post("/api/auth/register/", self.user_data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -62,7 +62,7 @@ class UserAuthenticationTest(TestCase):
             email="test@example.com",
             password="testpass123",
         )
-        
+
         # Test login
         login_data = {
             "username": "testuser",
@@ -70,7 +70,7 @@ class UserAuthenticationTest(TestCase):
         }
         response = self.client.post("/api/auth/login/", login_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+
         # Verify response contains expected data
         self.assertIn("access_token", response.data)
         self.assertIn("refresh_token", response.data)
@@ -84,7 +84,7 @@ class UserAuthenticationTest(TestCase):
             email="test@example.com",
             password="testpass123",
         )
-        
+
         # Test login with wrong password
         login_data = {
             "username": "testuser",
@@ -114,7 +114,7 @@ class UserAuthenticationTest(TestCase):
             password="testpass123",
         )
         self.client.force_authenticate(user=user)
-        
+
         response = self.client.get("/api/auth/profile/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["username"], "testuser")
@@ -130,13 +130,13 @@ class UserAuthenticationTest(TestCase):
         )
         refresh = RefreshToken.for_user(user)
         refresh_token = str(refresh)
-        
+
         # Test token refresh
         response = self.client.post(
             "/api/auth/refresh/", {"refresh_token": refresh_token}
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+
         # Verify response contains new tokens
         self.assertIn("access_token", response.data)
         self.assertIn("refresh_token", response.data)
@@ -159,10 +159,10 @@ class UserAuthenticationTest(TestCase):
         )
         refresh = RefreshToken.for_user(user)
         refresh_token = str(refresh)
-        
+
         # Authenticate the user
         self.client.force_authenticate(user=user)
-        
+
         # Test logout
         response = self.client.post(
             "/api/auth/logout/", {"refresh_token": refresh_token}
@@ -179,7 +179,7 @@ class UserAuthenticationTest(TestCase):
             password="testpass123",
         )
         self.client.force_authenticate(user=user)
-        
+
         response = self.client.post("/api/auth/logout/", {})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("error", response.data)
