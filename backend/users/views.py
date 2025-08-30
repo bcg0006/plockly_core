@@ -5,8 +5,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import BlacklistedToken, RefreshToken
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 @api_view(["POST"])
@@ -86,7 +85,7 @@ def logout(request):
             return Response(
                 {"error": "Refresh token required"}, status=status.HTTP_400_BAD_REQUEST
             )
-    except Exception as e:
+    except Exception:
         return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -125,7 +124,7 @@ def refresh_token(request):
             status=status.HTTP_200_OK,
         )
 
-    except Exception as e:
+    except Exception:
         return Response(
             {"error": "Invalid refresh token"}, status=status.HTTP_401_UNAUTHORIZED
         )

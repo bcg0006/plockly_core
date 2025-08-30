@@ -1,9 +1,10 @@
 """
-Environment-specific Django settings configuration.
-This file handles different settings for development, staging, and production.
+Environment-specific Django settings for Plockly v2 backend.
+
+This file extends the base settings with environment-specific configurations
+using python-decouple for environment variable management.
 """
 
-import os
 from pathlib import Path
 
 from decouple import Csv, config
