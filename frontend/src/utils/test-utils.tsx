@@ -58,7 +58,9 @@ export const testUtils = {
       clear: jest.fn(() => {
         Object.keys(store).forEach(key => delete store[key]);
       }),
-      length: Object.keys(store).length,
+      get length() {
+        return Object.keys(store).length;
+      },
       key: jest.fn((index: number) => Object.keys(store)[index] || null),
     };
   },
@@ -78,7 +80,9 @@ export const testUtils = {
       clear: jest.fn(() => {
         Object.keys(store).forEach(key => delete store[key]);
       }),
-      length: Object.keys(store).length,
+      get length() {
+        return Object.keys(store).length;
+      },
       key: jest.fn((index: number) => Object.keys(store)[index] || null),
     };
   },

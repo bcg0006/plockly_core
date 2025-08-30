@@ -329,22 +329,6 @@ class UserViewSet(viewsets.ModelViewSet):
 - **React Documentation**: https://react.dev/
 - **TypeScript Handbook**: https://www.typescriptlang.org/docs/
 - **Testing Best Practices**: https://testing-library.com/docs/
-
----
-
-## **📞 Support & Questions**
-
-### **Team Communication**
-- **Slack Channel**: #plockly-dev
-- **Code Reviews**: GitHub Pull Request discussions
-- **Documentation Issues**: Create GitHub issues
-- **Technical Questions**: Ask in team chat or create discussions
-
-### **Escalation Process**
-1. **Team Lead**: For technical decisions and architecture
-2. **Project Manager**: For timeline and resource questions
-3. **DevOps Engineer**: For deployment and infrastructure issues
-
 ---
 
 **Remember**: These standards are living documents. If you find better practices or have suggestions for improvement, please contribute to this documentation! 🚀
