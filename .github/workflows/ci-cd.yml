@@ -99,7 +99,7 @@ jobs:
           echo "Security scan completed"
 
       - name: 📋 Upload security report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: backend-security-report
           path: backend/bandit-report.json
@@ -148,7 +148,7 @@ jobs:
           npm run build
 
       - name: 📋 Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: frontend-build
           path: frontend/dist
@@ -210,7 +210,7 @@ jobs:
           out: 'reports'
 
       - name: 📋 Upload security reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: security-reports
           path: reports/
