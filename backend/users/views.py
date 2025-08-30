@@ -1,141 +1,211 @@
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
 
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from .serializers import (
+    UserLoginSerializer,
+    UserProfileSerializer,
+    UserSerializer,
+    UserSignupSerializer,
+)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def signup(request):
+    """
+    User signup endpoint
+
+    Accepts: email, password, password_confirm
+    Returns: user data, JWT tokens, success message
+    """
+    serializer = UserSignupSerializer(data=request.data)
+
+    if serializer.is_valid():
+        try:
+            # Create the user
+            user = serializer.save()
+
+            # Generate JWT tokens
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            refresh_token = str(refresh)
+
+            # Prepare response data
+            user_data = UserSerializer(user).data
+            tokens = {"access": access_token, "refresh": refresh_token}
+
+            response_data = {
+                "user": user_data,
+                "tokens": tokens,
+                "message": "User registered successfully!",
+            }
+
+            return Response(response_data, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            # If user creation fails, return error
+            return Response(
+                {"error": "Failed to create user. Please try again.", "detail": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def login(request):
-    username = request.data.get("username")
-    password = request.data.get("password")
+    """
+    User login endpoint
 
-    if username and password:
-        user = authenticate(username=username, password=password)
+    Accepts: email, password
+    Returns: user data, JWT tokens, success message
+    """
+    serializer = UserLoginSerializer(data=request.data)
+
+    if serializer.is_valid():
+        email = serializer.validated_data["email"].lower().strip()
+        password = serializer.validated_data["password"]
+
+        # Try to authenticate with email as username
+        user = authenticate(username=email, password=password)
+
         if user:
-            refresh = RefreshToken.for_user(user)
-            return Response(
-                {
-                    "access_token": str(refresh.access_token),
-                    "refresh_token": str(refresh),
-                    "user": {
-                        "id": user.id,
-                        "username": user.username,
-                        "email": user.email,
-                    },
+            if user.is_active:
+                # Generate JWT tokens
+                refresh = RefreshToken.for_user(user)
+                access_token = str(refresh.access_token)
+                refresh_token = str(refresh)
+
+                # Prepare response data
+                user_data = UserSerializer(user).data
+                tokens = {"access": access_token, "refresh": refresh_token}
+
+                response_data = {
+                    "user": user_data,
+                    "tokens": tokens,
+                    "message": "Login successful!",
                 }
-            )
+
+                return Response(response_data, status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    {"error": "Account is disabled. Please contact support."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         else:
             return Response(
-                {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
+                {"error": "Invalid credentials. Please check your email and password."},
+                status=status.HTTP_401_UNAUTHORIZED,
             )
 
-    return Response(
-        {"error": "Username and password required"}, status=status.HTTP_400_BAD_REQUEST
-    )
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
-def register(request):
-    username = request.data.get("username")
-    email = request.data.get("email")
-    password = request.data.get("password")
-
-    if username and email and password:
-        if User.objects.filter(username=username).exists():
-            return Response(
-                {"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        user = User.objects.create_user(
-            username=username, email=email, password=password
-        )
-        refresh = RefreshToken.for_user(user)
-        return Response(
-            {
-                "access_token": str(refresh.access_token),
-                "refresh_token": str(refresh),
-                "user": {"id": user.id, "username": user.username, "email": user.email},
-            },
-            status=status.HTTP_201_CREATED,
-        )
-
-    return Response(
-        {"error": "Username, email and password required"},
-        status=status.HTTP_400_BAD_REQUEST,
-    )
-
-
-@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def logout(request):
+    """
+    User logout endpoint
+
+    Requires: Authentication
+    Returns: Success message
+    """
     try:
+        # Get the refresh token from request
         refresh_token = request.data.get("refresh_token")
+
         if refresh_token:
+            # Blacklist the refresh token
             token = RefreshToken(refresh_token)
-            token.blacklist()  # Blacklist the refresh token
+            token.blacklist()
+
             return Response(
-                {"message": "Successfully logged out"}, status=status.HTTP_200_OK
+                {"message": "Logout successful!"}, status=status.HTTP_200_OK
             )
         else:
             return Response(
-                {"error": "Refresh token required"}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "Refresh token is required for logout."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-    except Exception:
-        return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as e:
+        return Response(
+            {"error": "Invalid refresh token.", "detail": str(e)},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+@api_view(["GET", "PUT", "PATCH"])
+@permission_classes([IsAuthenticated])
+def profile(request):
+    """
+    User profile endpoint
+
+    GET: Retrieve user profile
+    PUT/PATCH: Update user profile
+    Requires: Authentication
+    """
+    if request.method == "GET":
+        serializer = UserProfileSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    elif request.method in ["PUT", "PATCH"]:
+        serializer = UserProfileSerializer(
+            request.user, data=request.data, partial=request.method == "PATCH"
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def refresh_token(request):
     """
-    Custom token refresh endpoint that handles token rotation and blacklisting.
-    This ensures old refresh tokens are invalidated after use.
+    Refresh JWT token endpoint
+
+    Accepts: refresh token
+    Returns: new access token
     """
     try:
-        refresh_token = request.data.get("refresh_token")
+        refresh_token = request.data.get("refresh")
+
         if not refresh_token:
             return Response(
-                {"error": "Refresh token required"}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "Refresh token is required."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Create new tokens with rotation
+        # Verify and refresh the token
         refresh = RefreshToken(refresh_token)
 
-        # Blacklist the old refresh token
-        refresh.blacklist()
+        # Check if token is blacklisted
+        try:
+            refresh.check_blacklist()
+        except Exception:
+            return Response(
+                {"error": "Invalid refresh token."}, status=status.HTTP_401_UNAUTHORIZED
+            )
 
-        # Generate new tokens
-        new_refresh = (
-            RefreshToken.for_user(request.user)
-            if hasattr(request, "user") and request.user.is_authenticated
-            else RefreshToken()
-        )
+        # Generate new access token
+        new_access_token = str(refresh.access_token)
 
         return Response(
-            {
-                "access_token": str(new_refresh.access_token),
-                "refresh_token": str(new_refresh),
-            },
+            {"access": new_access_token, "message": "Token refreshed successfully!"},
             status=status.HTTP_200_OK,
         )
 
-    except Exception:
+    except Exception as e:
         return Response(
-            {"error": "Invalid refresh token"}, status=status.HTTP_401_UNAUTHORIZED
+            {"error": "Invalid refresh token.", "detail": str(e)},
+            status=status.HTTP_401_UNAUTHORIZED,
         )
-
-
-@api_view(["GET"])
-def profile(request):
-    return Response(
-        {
-            "id": request.user.id,
-            "username": request.user.username,
-            "email": request.user.email,
-        }
-    )

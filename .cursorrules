@@ -10,9 +10,9 @@ Key Principles
 
 Django/Python
 
-- Use Django’s class-based views (CBVs) for more complex views; prefer function-based views (FBVs) for simpler logic.
-- Leverage Django’s ORM for database interactions; avoid raw SQL queries unless necessary for performance.
-- Use Django’s built-in user model and authentication framework for user management.
+- Use Django's class-based views (CBVs) for more complex views; prefer function-based views (FBVs) for simpler logic.
+- Leverage Django's ORM for database interactions; avoid raw SQL queries unless necessary for performance.
+- Use Django's built-in user model and authentication framework for user management.
 - Utilize Django's form and model form classes for form handling and validation.
 - Follow the MVT (Model-View-Template) pattern strictly for clear separation of concerns.
 - Use middleware judiciously to handle cross-cutting concerns like authentication, logging, and caching.
@@ -39,17 +39,17 @@ Django-Specific Guidelines
 - Keep business logic in models and forms; keep views light and focused on request handling.
 - Use Django's URL dispatcher (urls.py) to define clear and RESTful URL patterns.
 - Apply Django's security best practices (e.g., CSRF protection, SQL injection protection, XSS prevention).
-- Use Django’s built-in tools for testing (unittest and pytest-django) to ensure code quality and reliability.
-- Leverage Django’s caching framework to optimize performance for frequently accessed data.
-- Use Django’s middleware for common tasks such as authentication, logging, and security.
+- Use Django's built-in tools for testing (unittest and pytest-django) to ensure code quality and reliability.
+- Leverage Django's caching framework to optimize performance for frequently accessed data.
+- Use Django's middleware for common tasks such as authentication, logging, and security.
 
 Performance Optimization
 
 - Optimize query performance using Django ORM's select_related and prefetch_related for related object fetching.
-- Use Django’s cache framework with backend support (e.g., Redis or Memcached) to reduce database load.
+- Use Django's cache framework with backend support (e.g., Redis or Memcached) to reduce database load.
 - Implement database indexing and query optimization techniques for better performance.
 - Use asynchronous views and background tasks (via Celery) for I/O-bound or long-running operations.
-- Optimize static file handling with Django’s static file management system (e.g., WhiteNoise or CDN integration).
+- Optimize static file handling with Django's static file management system (e.g., WhiteNoise or CDN integration).
 
 Key Conventions
 
@@ -59,6 +59,7 @@ Key Conventions
 
 Refer to Django documentation for best practices in views, models, forms, and security considerations.
 
+---
 
 You are an expert in TypeScript, Node.js, React, Vite, TanStack Query, TanStack Router, and Tailwind.
 
@@ -101,3 +102,88 @@ Performance Optimization
   - Use efficient algorithms
   - Use efficient rendering strategies
   - Use efficient state management
+
+---
+
+# NEW: Development Infrastructure & Quality Standards
+
+## Code Quality & Testing
+- **Pre-commit Hooks**: Always run pre-commit hooks before committing (Black, isort, flake8 for Python; ESLint for TypeScript)
+- **Test Coverage**: Maintain minimum 80% backend coverage, 70% frontend coverage
+- **Testing Strategy**: Write comprehensive unit tests for all business logic
+- **Code Formatting**: Use Black (Python) and Prettier (TypeScript) for consistent formatting
+- **Linting**: Run flake8 (Python) and ESLint (TypeScript) to catch issues early
+
+## Security Best Practices
+- **JWT Security**: Use secure token lifetimes (15min access, 7 days refresh)
+- **Token Rotation**: Implement refresh token rotation with blacklisting
+- **Input Validation**: Always validate and sanitize user inputs
+- **CORS Configuration**: Restrict CORS to trusted origins only
+- **Security Scanning**: Integrate Trivy for container vulnerability scanning
+- **Secret Management**: Never hardcode secrets; use environment variables
+
+## CI/CD Pipeline Standards
+- **Quality Gates**: All tests must pass before deployment
+- **Security Scanning**: Run vulnerability scans on every build
+- **Coverage Requirements**: Enforce minimum coverage thresholds
+- **Staging First**: Always deploy to staging before production
+- **Automated Testing**: Run full test suite on every push
+- **Docker Security**: Scan all container images for vulnerabilities
+
+## Development Workflow
+- **Git Flow**: Use feature branches, conventional commits, and PR reviews
+- **Code Review**: Require code review for all changes
+- **Documentation**: Keep README files and API docs updated
+- **Environment Management**: Use .env files and python-decouple for configuration
+- **Dependency Management**: Keep dependencies updated and secure
+
+## Performance & Monitoring
+- **Database Optimization**: Use select_related/prefetch_related, add proper indexes
+- **Caching Strategy**: Implement Redis caching for expensive operations
+- **Async Operations**: Use Celery for background tasks
+- **Health Checks**: Implement health check endpoints for monitoring
+- **Logging**: Use structured logging for better debugging
+
+## Team Collaboration
+- **Standards Documentation**: Maintain comprehensive development standards
+- **IDE Configuration**: Provide VS Code workspace with recommended extensions
+- **Quick Reference**: Keep command reference guides updated
+- **Onboarding**: Document setup process for new team members
+- **Code Examples**: Include practical examples in documentation
+
+## Docker & Deployment
+- **Multi-stage Builds**: Use multi-stage Docker builds for production
+- **Health Checks**: Implement proper health checks in containers
+- **Environment Variables**: Use environment-specific .env files
+- **Security Scanning**: Scan all images with Trivy before deployment
+- **Rollback Strategy**: Have rollback procedures ready for production
+
+## Error Handling & Logging
+- **Structured Logging**: Use consistent log format across the application
+- **Error Tracking**: Implement proper error monitoring and alerting
+- **Graceful Degradation**: Handle failures gracefully with fallbacks
+- **User Feedback**: Provide clear error messages to users
+- **Debug Information**: Include relevant context in error logs
+
+## API Design
+- **RESTful Design**: Follow REST principles for API endpoints
+- **Versioning**: Plan for API versioning from the start
+- **Documentation**: Use DRF's built-in API documentation
+- **Rate Limiting**: Implement API rate limiting for security
+- **Response Format**: Use consistent response format across all endpoints
+
+## Database Design
+- **Migrations**: Always use Django migrations for schema changes
+- **Indexing**: Add indexes for frequently queried fields
+- **Relationships**: Use appropriate field types for relationships
+- **Constraints**: Add database constraints for data integrity
+- **Backup Strategy**: Plan for database backups and recovery
+
+## Monitoring & Observability
+- **Application Metrics**: Track response times, error rates, and throughput
+- **Infrastructure Monitoring**: Monitor server resources and container health
+- **Alerting**: Set up alerts for critical issues
+- **Dashboards**: Create monitoring dashboards for key metrics
+- **Log Aggregation**: Centralize logs for better debugging
+
+Remember: These standards are living documents. Always prioritize security, performance, and maintainability in every decision. Follow the principle of "Convention Over Configuration" and leverage the full power of Django and React ecosystems.
